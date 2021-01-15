@@ -1,57 +1,52 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import axios from 'axios';
+import Movie from './Movie';
+import "./App.css";
 
-const foodILike = [
-  {
-    id:1, 
-    name: "Leeknow",
-    image:
-      "https://newsimg.sedaily.com/2018/10/22/1S60DTDXZ4_1.jpg",
-    rating: 5
-  },
-  {
-    id:2, 
-    name: "I.N",
-    image:
-      "https://file.mk.co.kr/meet/neds/2020/04/image_readtop_2020_381669_15865956264159622.jpg",
-    rating: 4
-  },
-  {
-    id:3,
-    name: "seungmin",
-    image:
-      "https://www.topstarnews.net/news/photo/201812/549557_220165_327.jpg",
-    rating: 4.5
+class App extends React.Component{
+  state = {
+    isLoading: true,
+    movies: []
+  };
+
+  getMovies = async () => {
+    const {
+      data: {
+        data: { movies }
+      }
+    } = await axios.get("https://yts-proxy.nomadcoders1.now.sh/list_movies.json?sort_by=rating");
+    this.setState({ movies, isLoading: false });
   }
-];
 
-function  Food({ name, picture, rating }) {
-  return <div>
-    <h2>I like { name }</h2>
-    <h4>{rating}/5.0</h4>
-    <img src={ picture } alt={name}/>
-    </div>;
-}
+  componentDidMount() {
+    this.getMovies();
+  }
 
-Food.propTypes = {
-  name: PropTypes.string.isRequired,
-  picture: PropTypes.string.isRequired,
-  rating: PropTypes.number.isRequired
-};
-
-function App() {
-  return (
-    <div>
-        {foodILike.map(dish => (
-        <Food 
-        key={dish.id} 
-        name={dish.name} 
-        picture={dish.image}
-        rating={dish.rating}
-         />
-        ))}
-    </div>
-  );
+  render() {
+    const { isLoading, movies } = this.state;
+    return (
+      <section class="container">
+        {isLoading ? (
+          <div class="loader">
+            <span class="loader__text">Loading...</span>
+          </div>
+        ) : ( 
+          <div class="movies">
+            {movies.map(movie => (
+              <Movie 
+                key={movie.id}
+                id={movie.id} 
+                year={movie.year}
+                title={movie.title}
+                summary={movie.summary}
+                poster={movie.medium_cover_image}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+    );
+  }
 }
 
 export default App;
